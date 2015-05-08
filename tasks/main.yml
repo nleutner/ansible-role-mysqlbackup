@@ -1,0 +1,10 @@
+---
+
+# Create MySQL backup user
+- include: users.yml
+  tags: mysqlbackup
+
+# Configure MySQL Backup
+- name: Configure MySQL Backup
+  include: mysqlbackup.yml
+  tags: mysqlbackup

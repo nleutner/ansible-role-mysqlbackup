@@ -1,0 +1,54 @@
+#!/bin/bash
+########################################
+# MYSQL backup script
+# all2e / Ansible managed: modified on {{ template_run_date }} by {{ template_uid }} on {{ template_host }}
+#
+# This backup script dumps all MySQL databases to compressed.sql.gz archives
+# Rotation is controlled via ROATION=TRUE
+# When rotation is used, dump files older then DAYS will be removed
+########################################
+
+########################################
+# Script settings
+########################################
+USER="{{ mysql_backup_user }}"
+PASSWORD="{{ mysql_backup_password }}"
+
+DMPATH={{ mysql_backup_dir }}
+
+# list of databases to ignore
+IGNORE="{{ mysql_backup_db_ignore }}"
+
+# Use dump rotation TRUE?
+ROATION=TRUE
+# hold-back time for old dumps
+DAYS={{ mysql_backup_days }}
+# string to append to the dumpfile name when rotation is used
+APPEND=_`date +%Y%m%d`
+########################################
+# Dump the databases
+########################################
+# Get list of all databases
+DB_LIST=`mysql -u$USER -p$PASSWORD -Bse "show databases"`
+for db in $DB_LIST; do
+    # set skip variable
+    skip=0
+    if [ "$IGNORE" != "" ]; then
+        for i in $IGNORE; do
+            [ "$db" == "$i" ] && skip=1 || :
+        done
+    fi
+    if [ "$skip" == "0" ]; then
+        # create the dump file for the specific database $db
+        if [ "$ROATION" == "TRUE" ]; then
+            mysqldump -u$USER -p$PASSWORD --opt --single-transaction $db | gzip -9 > ${DMPATH}${db}${APPEND}.sql.gz
+        else
+            mysqldump -u$USER -p$PASSWORD --opt --single-transaction $db | gzip -9 > ${DMPATH}${db}.sql.gz
+        fi
+    fi
+done
+# remove backups which are older than $DAYS when rotation is used
+if [ "$ROATION" == "TRUE" ]; then
+    find ${DMPATH}*.sql.gz -ctime +$DAYS | xargs rm -f
+fi
+exit 0

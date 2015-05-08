@@ -1,0 +1,23 @@
+---
+- name: Ensure MySQL backup user is present.
+  mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host | default('localhost') }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv | default('*.*:USAGE') }}"
+    state: present
+  with_items: mysql_users
+  when: not mysql_use_credentials
+
+- name: Ensure MySQL backup user is present (using admin credentials).
+  mysql_user:
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_password }}"
+    name: "{{ item.name }}"
+    host: "{{ item.host | default('localhost') }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv | default('*.*:USAGE') }}"
+    state: present
+  with_items: mysql_users
+  when: mysql_use_credentials
+

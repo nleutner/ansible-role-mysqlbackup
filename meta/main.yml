@@ -1,0 +1,16 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: nleutner
+  description: MySQL / MariaDB backup role for RHEL/CentOS
+  company: "all2e GmbH"
+  license: "license (BSD, MIT)"
+  min_ansible_version: 1.4
+  platforms:
+  - name: EL
+    versions:
+    - 6
+    - 7
+  categories:
+    - database

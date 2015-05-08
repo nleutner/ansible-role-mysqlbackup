@@ -1,0 +1,19 @@
+---
+
+# create mysql backup dir
+- name: create mysql backup dir
+  file:
+    path: "{{ mysql_backup_dir }}"
+    owner: "{{ mysql_backup_dir_owner }}"
+    group: "{{ mysql_backup_dir_group }}"
+    mode: "{{ mysql_backup_permission }}"
+    state: directory
+
+# copy template
+- name: Copy mysqlbackup file to cron.daily
+  template:
+    src: "mysqlbackup.bash.j2"
+    dest: "/etc/cron.daily/mysqlbackup.bash"
+    owner: root
+    group: root
+    mode: 0755
